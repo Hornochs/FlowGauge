@@ -121,8 +121,10 @@ dockers:
     image_templates:
       - "ghcr.io/lan-dot-party/flowgauge:{{ .Version }}-amd64"
       - "ghcr.io/lan-dot-party/flowgauge:latest-amd64"
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.goreleaser
     use: buildx
+    extra_files:
+      - configs/flowgauge.example.yaml
     build_flag_templates:
       - "--platform=linux/amd64"
       - "--label=org.opencontainers.image.title=FlowGauge"
@@ -135,8 +137,10 @@ dockers:
     image_templates:
       - "ghcr.io/lan-dot-party/flowgauge:{{ .Version }}-arm64"
       - "ghcr.io/lan-dot-party/flowgauge:latest-arm64"
-    dockerfile: Dockerfile
+    dockerfile: Dockerfile.goreleaser
     use: buildx
+    extra_files:
+      - configs/flowgauge.example.yaml
     build_flag_templates:
       - "--platform=linux/arm64"
       - "--label=org.opencontainers.image.title=FlowGauge"

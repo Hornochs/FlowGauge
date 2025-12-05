@@ -1,0 +1,44 @@
+# FlowGauge Dockerfile for GoReleaser
+# Uses pre-built binary from GoReleaser
+
+FROM alpine:3.21
+
+# Labels
+LABEL org.opencontainers.image.title="FlowGauge"
+LABEL org.opencontainers.image.description="Bandwidth monitoring with Multi-WAN support"
+LABEL org.opencontainers.image.source="https://github.com/lan-dot-party/flowgauge"
+LABEL org.opencontainers.image.licenses="MIT"
+
+# Install runtime dependencies
+RUN apk add --no-cache ca-certificates tzdata
+
+# Create non-root user
+RUN addgroup -S flowgauge && adduser -S flowgauge -G flowgauge
+
+# Create directories
+RUN mkdir -p /etc/flowgauge /var/lib/flowgauge && \
+    chown -R flowgauge:flowgauge /var/lib/flowgauge
+
+# Copy pre-built binary from GoReleaser
+COPY flowgauge /usr/bin/flowgauge
+
+# Copy example config (added via extra_files in .goreleaser.yaml)
+COPY configs/flowgauge.example.yaml /etc/flowgauge/config.yaml.example
+
+# Set working directory
+WORKDIR /var/lib/flowgauge
+
+# Switch to non-root user
+USER flowgauge
+
+# Expose API port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+
+# Default command
+ENTRYPOINT ["flowgauge"]
+CMD ["server"]
+
